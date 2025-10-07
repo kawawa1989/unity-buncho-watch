@@ -1,4 +1,3 @@
-using System.Collections;
 using BunchoWatch;
 using UnityEngine;
 using Tree = BunchoWatch.Tree;
@@ -15,6 +14,8 @@ public class BirdController : MonoBehaviour
     private float height = 400;
     [SerializeField] 
     private float duration = 0.3f;
+    [SerializeField]
+    private Camera mainCamera;
 
     
     private const int IdleTime = 3;
@@ -40,6 +41,9 @@ public class BirdController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // タッチ入力の検出
+        HandleTouchInput();
+        
         if (_time > IdleTime && _currentAction == null)
         {
             _currentAction = DecideNextAction();
@@ -94,5 +98,85 @@ public class BirdController : MonoBehaviour
         }
 
         return new Idle();
+    }
+
+    /// <summary>
+    /// タッチ入力を処理するメソッド
+    /// </summary>
+    void HandleTouchInput()
+    {
+        // マウス/タッチ入力の検出
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector2 screenPosition = Input.mousePosition;
+            var nearestTreePosition = GetNearestTreePosition(screenPosition);
+            
+            // デバッグ用ログ出力
+            Debug.Log($"タッチされたスクリーン座標: {screenPosition}");
+            Debug.Log($"最も近いTreeのPosition: {nearestTreePosition.position}, PosIndex:{nearestTreePosition.positionIndex}, Tree:{nearestTreePosition.treeIndex}");
+        }
+
+        // モバイルデバイスでのタッチ入力
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began)
+            {
+                Vector2 screenPosition = touch.position;
+                var nearestTreePosition = GetNearestTreePosition(screenPosition);
+                
+                // デバッグ用ログ出力
+                Debug.Log($"タッチされたスクリーン座標: {screenPosition}");
+                Debug.Log($"最も近いTreeのPosition: {nearestTreePosition.position}, PosIndex:{nearestTreePosition.positionIndex}, Tree:{nearestTreePosition.treeIndex}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// スクリーン座標から最も近いTreeのPositionを取得するメソッド
+    /// </summary>
+    /// <param name="screenPosition">タッチされたスクリーン座標</param>
+    /// <returns>最も近いTreeのPosition</returns>
+    (Vector3 position, int treeIndex, int positionIndex) GetNearestTreePosition(Vector2 screenPosition)
+    {
+        if (mainCamera == null)
+        {
+            Debug.LogError("MainCameraが設定されていません");
+            return (Vector3.zero, 0, 0);
+        }
+
+        if (trees == null || trees.Length == 0)
+        {
+            Debug.LogError("Treesが設定されていません");
+            return (Vector3.zero, 0, 0);
+        }
+
+        // スクリーン座標をワールド座標に変換
+        Vector3 nearestPosition = Vector3.zero;
+        float nearestDistance = float.MaxValue;
+        int resultTreeIndex = 0;
+        int resultPositionIndex = 0;
+        
+        // 全てのTreeの全てのPositionをチェック
+        for (int treeIndex = 0; treeIndex < trees.Length; treeIndex++)
+        {
+            // Treeの全てのポジションをチェック
+            for (int position = 0; position < trees[treeIndex].GetPositionCount(); position++)
+            {
+                Vector3 treePosition = trees[treeIndex].GetPosition(position);
+                float distance = Vector2.Distance(screenPosition,
+                    new Vector2(treePosition.x, treePosition.y));
+                
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearestPosition = treePosition;
+                    resultTreeIndex = treeIndex;
+                    resultPositionIndex = position;
+                }
+            }
+        }
+
+        return (nearestPosition, resultTreeIndex, resultPositionIndex);
     }
 }

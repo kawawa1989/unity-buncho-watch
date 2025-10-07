@@ -43,5 +43,14 @@ namespace BunchoWatch
                 return Random.Range(min, max);
             }
         }
+
+        /// <summary>
+        /// このTreeのポジション数を取得
+        /// </summary>
+        /// <returns>ポジション数</returns>
+        public int GetPositionCount()
+        {
+            return positions.Length;
+        }
     }
 }
