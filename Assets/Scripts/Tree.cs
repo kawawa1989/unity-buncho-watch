@@ -32,15 +32,11 @@ namespace BunchoWatch
             // 右向き(左へ向かう)
             if (dir < 0)
             {
-                var min = Mathf.Max(index - 3, 0);
-                var max = index;
-                return Random.Range(min, max);
+                return index + 1;
             }
             else
             {
-                var min = index;
-                var max = Mathf.Min(index + 3, positions.Length);
-                return Random.Range(min, max);
+                return index - 1;
             }
         }
 

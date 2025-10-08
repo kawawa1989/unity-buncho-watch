@@ -1,5 +1,6 @@
 using BunchoWatch;
 using UnityEngine;
+using UnityEngine.UI;
 using Tree = BunchoWatch.Tree;
 
 public class BirdController : MonoBehaviour
@@ -7,15 +8,17 @@ public class BirdController : MonoBehaviour
     [SerializeField] 
     private Tree[] trees;
     [SerializeField]
-    private Transform positionA;
-    [SerializeField]
-    private Transform positionB;
-    [SerializeField] 
-    private float height = 400;
-    [SerializeField] 
-    private float duration = 0.3f;
-    [SerializeField]
     private Camera mainCamera;
+    [SerializeField]
+    private Sprite[] idleSprites;
+    [SerializeField]
+    private Sprite[] walkSprites;
+    [SerializeField]
+    private Sprite[] sleepSprites;
+    [SerializeField]
+    private Sprite[] jumpSprites;
+    [SerializeField]
+    private Image image;
 
     
     private const int IdleTime = 3;
@@ -23,11 +26,30 @@ public class BirdController : MonoBehaviour
     private BirdAction _currentAction;
     private int _currentTreeIndex;
     private int _positionIndex;
+    private int _animCounter;
+
+    public void Walk()
+    {
+        int index = (_animCounter++ / 2);
+        int spr = index % walkSprites.Length;
+        image.sprite = walkSprites[spr];
+    }
     
+    public void Jump(int index)
+    {
+        image.sprite = jumpSprites[index];
+    }
+    
+    public void Idle(int index)
+    {
+        image.sprite = idleSprites[index];
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        SetTree(0, 0);
+        Application.targetFrameRate = 30;
+        SetTree(0, 5);
     }
 
     void SetTree(int treeIndex, int position)
@@ -37,7 +59,7 @@ public class BirdController : MonoBehaviour
         _currentTreeIndex = treeIndex;
         _positionIndex = position;
     }
-
+    
     // Update is called once per frame
     void Update()
     {
@@ -82,7 +104,7 @@ public class BirdController : MonoBehaviour
             {
                 var nextPosition = trees[_currentTreeIndex].Pick(_positionIndex);
                 _positionIndex = nextPosition;
-                return new Walk(transform, trees[_currentTreeIndex].GetPosition(nextPosition));
+                return new Walk(this, transform, trees[_currentTreeIndex].GetPosition(nextPosition));
             }
             case 1:
             {
@@ -91,7 +113,7 @@ public class BirdController : MonoBehaviour
                 var jumpTo = nextTree.PickNearest(_positionIndex);
                 _currentTreeIndex = nextTreeIndex;
                 _positionIndex = jumpTo;
-                return new Jump(transform, nextTree.GetPosition(jumpTo));
+                return new Jump(this, transform, nextTree.GetPosition(jumpTo));
             }
             case 2:
                 return new Sleep();

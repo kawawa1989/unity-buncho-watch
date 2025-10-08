@@ -27,20 +27,25 @@ namespace BunchoWatch
         private readonly float _duration = 0.3f;
         private readonly Transform _target;
         private readonly Vector3 _toward;
+        private readonly BirdController _controller;
 
-        public Jump(Transform target, Vector3 toward)
+        public Jump(BirdController controller, Transform target, Vector3 toward)
         {
+            _controller = controller;
             _target = target;
             _toward = toward;
         }
 
         public override IEnumerator Action()
         {
+            _controller.Jump(0);
+            yield return new WaitForSeconds(1.0f);
             float t = 0f;
             // Zはそのまま
             float z = _target.position.z;
             var start = _target.position;
 
+            _controller.Jump(1);
             while (t < 1f)
             {
                 t += Time.deltaTime / _duration;
@@ -58,7 +63,11 @@ namespace BunchoWatch
                 _target.position = new Vector3(pos.x, pos.y, z);
                 yield return null;
             }
-
+            
+            _controller.Jump(0);
+            yield return new WaitForSeconds(1.0f);
+            _controller.Idle(0);
+            
             _target.position = new Vector3(_toward.x, _toward.y, z);
             IsRunning = false;
         }
@@ -70,12 +79,14 @@ namespace BunchoWatch
         private readonly Vector3 _start;
         private readonly Vector3 _toward;
         private readonly Transform _target;
+        private readonly BirdController _controller;
 
-        public Walk(Transform target, Vector3 toward)
+        public Walk(BirdController controller, Transform target, Vector3 toward)
         {
             _target = target;
             _start = _target.position;
             _toward = toward;
+            _controller = controller;
         }
 
         public override IEnumerator Action()
@@ -86,6 +97,7 @@ namespace BunchoWatch
                 float t = time / _duration;
                 _target.position = Vector3.Lerp(_start, _toward, t);
                 time += Time.deltaTime;
+                _controller.Walk();
                 yield return null;
             }
 
