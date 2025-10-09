@@ -1,25 +1,32 @@
 using System;
 using UnityEngine;
+using Object = System.Object;
 
 namespace BunchoWatch
 {
     public class FieldController : MonoBehaviour
     { 
+        [SerializeField] 
+        private BunchoController bunchoSource;
+        
         [SerializeField]
         private Perch[] perches;
-
         [SerializeField] 
-        private BunchoController buncho;
+        private Transform houseRoot;
+        private BunchoController _buncho;
 
-        private void Awake()
+        public void Start()
         {
             Application.targetFrameRate = 30;
+            Canvas.ForceUpdateCanvases();
+
             foreach (var perch in perches)
             {
                 perch.Initialize();
             }
 
-            buncho.Initialize(this);
+            _buncho = Instantiate(bunchoSource, houseRoot);
+            _buncho.Initialize(this);
         }
 
         public Perch GetPerchAt(int index)
