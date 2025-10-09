@@ -13,7 +13,7 @@ public enum MoveDirection
 
 public class BunchoAnimator : MonoBehaviour
 {
-    private const int WalkMoveAmount = 40;
+    public const int WalkMoveAmount = 40;
     public Sprite openEyeSprite;
     public Sprite closeEyeSprite;
     public Transform footLeft;

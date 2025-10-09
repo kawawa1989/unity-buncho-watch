@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BunchoWatch
 {
-    public class BirdAction
+    public class BunchoAction
     {
         public bool IsRunning { get; protected set; } = true;
 
@@ -13,7 +13,7 @@ namespace BunchoWatch
         }
     }
 
-    public class Stand : BirdAction
+    public class Stand : BunchoAction
     {
         public override IEnumerator Action()
         {
@@ -21,31 +21,30 @@ namespace BunchoWatch
         }
     }
 
-    public class Jump : BirdAction
+    public class Jump : BunchoAction
     {
         private readonly float _height = 400.0f;
         private readonly float _duration = 0.3f;
         private readonly Transform _target;
         private readonly Vector3 _toward;
-        private readonly BirdController _controller;
+        private readonly BunchoAnimator _animator;
 
-        public Jump(BirdController controller, Transform target, Vector3 toward)
+        public Jump(BunchoAnimator controller, Transform target, Vector3 toward)
         {
-            _controller = controller;
+            _animator = controller;
             _target = target;
             _toward = toward;
         }
 
         public override IEnumerator Action()
         {
-            _controller.Jump(0);
+            var direction = _toward - _target.position;
+            yield return _animator.JumpStandby(direction.x > 0 ? MoveDirection.Right : MoveDirection.Left);
             yield return new WaitForSeconds(1.0f);
-            float t = 0f;
-            // Zはそのまま
-            float z = _target.position.z;
+            var t = 0f;
+            var z = _target.position.z;
             var start = _target.position;
-
-            _controller.Jump(1);
+            
             while (t < 1f)
             {
                 t += Time.deltaTime / _duration;
@@ -64,41 +63,41 @@ namespace BunchoWatch
                 yield return null;
             }
             
-            _controller.Jump(0);
             yield return new WaitForSeconds(1.0f);
-            _controller.Idle(0);
+            yield return _animator.Mochi();
             
             _target.position = new Vector3(_toward.x, _toward.y, z);
             IsRunning = false;
         }
     }
 
-    public class Walk : BirdAction
+    public class Walk : BunchoAction
     {
-        private readonly float _duration = 0.5f;
-        private readonly Vector3 _start;
         private readonly Vector3 _toward;
         private readonly Transform _target;
-        private readonly BirdController _controller;
+        private readonly BunchoAnimator _animator;
 
-        public Walk(BirdController controller, Transform target, Vector3 toward)
+        public Walk(BunchoAnimator animator, Transform target, Vector3 toward)
         {
             _target = target;
-            _start = _target.position;
             _toward = toward;
-            _controller = controller;
+            _animator = animator;
         }
 
         public override IEnumerator Action()
         {
-            float time = 0;
-            while (time < _duration)
+            var distance = _toward - _target.position;
+            while (distance.x > 0)
             {
-                float t = time / _duration;
-                _target.position = Vector3.Lerp(_start, _toward, t);
-                time += Time.deltaTime;
-                _controller.Walk();
-                yield return null;
+                var direction = distance.x > 0 ? MoveDirection.Right : MoveDirection.Left;
+                int amount = (int)(distance.x - BunchoAnimator.WalkMoveAmount);
+                if (amount < 0)
+                {
+                    amount = (int)distance.x;
+                }
+
+                yield return _animator.Walk(direction, amount);
+                distance = _toward - _target.position;
             }
 
             _target.position = _toward;
@@ -106,7 +105,7 @@ namespace BunchoWatch
         }
     }
 
-    public class Idle : BirdAction
+    public class Idle : BunchoAction
     {
         public override IEnumerator Action()
         {
@@ -121,7 +120,7 @@ namespace BunchoWatch
         }
     }
 
-    public class Sleep : BirdAction
+    public class Sleep : BunchoAction
     {
         public override IEnumerator Action()
         {
@@ -136,7 +135,7 @@ namespace BunchoWatch
         }
     }
 
-    public class DeepSleep : BirdAction
+    public class DeepSleep : BunchoAction
     {
         public override IEnumerator Action()
         {

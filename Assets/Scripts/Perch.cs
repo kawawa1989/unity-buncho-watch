@@ -1,14 +1,12 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace BunchoWatch
 {
-    public class Tree : MonoBehaviour
+    public class Perch : MonoBehaviour
     {
         [SerializeField]
         private Transform[] positions;
-
-
+        
         public Vector3 GetPosition(int index)
         {
             return positions[index].position;
@@ -41,7 +39,7 @@ namespace BunchoWatch
         }
 
         /// <summary>
-        /// このTreeのポジション数を取得
+        /// このPerchのポジション数を取得
         /// </summary>
         /// <returns>ポジション数</returns>
         public int GetPositionCount()

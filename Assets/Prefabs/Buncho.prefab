@@ -2032,6 +2032,7 @@ GameObject:
   - component: {fileID: 8436696606532660571}
   - component: {fileID: 3337984531174852733}
   - component: {fileID: 4556929245325915278}
+  - component: {fileID: 1967655912996573386}
   m_Layer: 5
   m_Name: Buncho
   m_TagString: Untagged
@@ -2120,6 +2121,21 @@ MonoBehaviour:
   tail2: {fileID: 4797510606813847646}
   eyeLeft: {fileID: 1741641966302222159}
   eyeRight: {fileID: 8779092869108267578}
+--- !u!114 &1967655912996573386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8607209644677148852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08c88a9fadace432ca191409b6070060, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  perches: []
+  mainCamera: {fileID: 0}
+  animator: {fileID: 4556929245325915278}
 --- !u!1 &8886763602840494286
 GameObject:
   m_ObjectHideFlags: 0
