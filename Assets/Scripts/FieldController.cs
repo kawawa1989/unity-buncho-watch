@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace BunchoWatch
@@ -7,6 +8,14 @@ namespace BunchoWatch
         [SerializeField]
         private Perch[] perches;
 
+        [SerializeField] 
+        private BunchoController buncho;
+
+        private void Awake()
+        {
+            Application.targetFrameRate = 30;
+            buncho.Initialize(this);
+        }
 
         public Perch GetPerchAt(int index)
         {

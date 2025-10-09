@@ -14,14 +14,13 @@ public class BunchoController : MonoBehaviour
     private int _currentPerchIndex;
     private int _positionIndex;
     
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void Initialize(FieldController fieldController)
     {
-        Application.targetFrameRate = 30;
+        field = fieldController;
         SetPerch(0, 5);
     }
 
-    void SetPerch(int perchIndex, int position)
+    private void SetPerch(int perchIndex, int position)
     {
         var perch = field.GetPerchAt(perchIndex);
         transform.position = perch.GetPosition(position);
@@ -30,7 +29,7 @@ public class BunchoController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         // タッチ入力の検出
         HandleTouchInput();
