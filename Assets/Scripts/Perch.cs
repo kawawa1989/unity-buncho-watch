@@ -1,21 +1,45 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace BunchoWatch
 {
     public class Perch : MonoBehaviour
     {
         [SerializeField]
-        private Transform[] positions;
-        
+        private Transform positionsRoot;
+        private readonly List<Transform> _positions = new();
+
+        public void Initialize()
+        {
+            for (var i = 0; i < positionsRoot.childCount; i++)
+            {
+                _positions.Add(positionsRoot.GetChild(i));
+            }
+        }
+
+        public void DumpPositions()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < _positions.Count; i++)
+            {
+                sb.AppendLine($"{i}: {_positions[i].position}");
+            }
+
+            Debug.Log(sb.ToString());
+        }
+
         public Vector3 GetPosition(int index)
         {
-            return positions[index].position;
+            return _positions[index].position;
         }
 
         public int PickNearest(int index)
         {
             var min = Mathf.Max(index - 3, 0);
-            var max = Mathf.Min(index + 3, positions.Length);
+            var max = Mathf.Min(index + 3, _positions.Count);
             return Random.Range(min, max);
         }
         
@@ -25,7 +49,7 @@ namespace BunchoWatch
         {
             // index が positions.Length / 2 以下である場合、左向き
             // それ以外は右向きと扱う
-            int dir = index <= positions.Length / 2 ? 1 : -1;
+            int dir = index <= _positions.Count / 2 ? 1 : -1;
 
             // 右向き(左へ向かう)
             if (dir < 0)
@@ -44,7 +68,7 @@ namespace BunchoWatch
         /// <returns>ポジション数</returns>
         public int GetPositionCount()
         {
-            return positions.Length;
+            return _positions.Count;
         }
     }
 }

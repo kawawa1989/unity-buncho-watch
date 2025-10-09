@@ -13,11 +13,32 @@ namespace BunchoWatch
         }
     }
 
-    public class Stand : BunchoAction
+    public class Mochi : BunchoAction
     {
+        private readonly BunchoAnimator _animator;
+        
+        public Mochi(BunchoAnimator animator)
+        {
+            _animator = animator;
+        }
+
         public override IEnumerator Action()
         {
-            yield break;
+            yield return _animator.Mochi();
+            yield return new WaitForSeconds(3.0f);
+
+            yield return _animator.CloseEye();
+            yield return new WaitForSeconds(5.0f);
+
+            yield return _animator.OpenEye();
+            yield return new WaitForSeconds(5.0f);
+
+            yield return _animator.MochiKubiKashige();
+            yield return new WaitForSeconds(10.0f);
+            
+            yield return _animator.Mochi();
+            yield return new WaitForSeconds(10.0f);
+            IsRunning = false;
         }
     }
 
@@ -29,9 +50,9 @@ namespace BunchoWatch
         private readonly Vector3 _toward;
         private readonly BunchoAnimator _animator;
 
-        public Jump(BunchoAnimator controller, Transform target, Vector3 toward)
+        public Jump(BunchoAnimator animator, Transform target, Vector3 toward)
         {
-            _animator = controller;
+            _animator = animator;
             _target = target;
             _toward = toward;
         }
@@ -40,11 +61,12 @@ namespace BunchoWatch
         {
             var direction = _toward - _target.position;
             yield return _animator.JumpStandby(direction.x > 0 ? MoveDirection.Right : MoveDirection.Left);
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(3.0f);
             var t = 0f;
             var z = _target.position.z;
             var start = _target.position;
-            
+
+            _animator.Reset();
             while (t < 1f)
             {
                 t += Time.deltaTime / _duration;
@@ -62,10 +84,11 @@ namespace BunchoWatch
                 _target.position = new Vector3(pos.x, pos.y, z);
                 yield return null;
             }
-            
+
+            yield return _animator.JumpStandby(MoveDirection.Center);
             yield return new WaitForSeconds(1.0f);
             yield return _animator.Mochi();
-            
+
             _target.position = new Vector3(_toward.x, _toward.y, z);
             IsRunning = false;
         }
@@ -86,18 +109,18 @@ namespace BunchoWatch
 
         public override IEnumerator Action()
         {
-            var distance = _toward - _target.position;
-            while (distance.x > 0)
+            var direction = (_toward - _target.position).x > 0 ? MoveDirection.Right : MoveDirection.Left;
+            var distance = Mathf.Abs((int)(_toward - _target.position).x);
+            while (distance > 0)
             {
-                var direction = distance.x > 0 ? MoveDirection.Right : MoveDirection.Left;
-                int amount = (int)(distance.x - BunchoAnimator.WalkMoveAmount);
-                if (amount < 0)
+                var amount = Mathf.Clamp(distance - BunchoAnimator.WalkMoveAmount, 0, BunchoAnimator.WalkMoveAmount);
+                if (amount <= 0)
                 {
-                    amount = (int)distance.x;
+                    amount = distance;
                 }
 
                 yield return _animator.Walk(direction, amount);
-                distance = _toward - _target.position;
+                distance = Mathf.Abs((int)(_toward - _target.position).x);
             }
 
             _target.position = _toward;

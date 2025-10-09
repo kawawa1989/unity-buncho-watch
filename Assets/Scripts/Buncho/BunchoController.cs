@@ -13,6 +13,7 @@ public class BunchoController : MonoBehaviour
     private BunchoAction _currentAction;
     private int _currentPerchIndex;
     private int _positionIndex;
+    private BunchoActionType _previousActionType;
     
     public void Initialize(FieldController fieldController)
     {
@@ -23,6 +24,7 @@ public class BunchoController : MonoBehaviour
     private void SetPerch(int perchIndex, int position)
     {
         var perch = field.GetPerchAt(perchIndex);
+        perch.DumpPositions();
         transform.position = perch.GetPosition(position);
         _currentPerchIndex = perchIndex;
         _positionIndex = position;
@@ -45,37 +47,55 @@ public class BunchoController : MonoBehaviour
         {
             _currentAction = null;
         }
-        
+
         _time += Time.deltaTime;
+    }
+
+    BunchoActionType SelectNextAction()
+    {
+        var action = BunchoActionType.Mochi;
+        int rnd = Random.Range(0, 100);
+        if (rnd is >= 0 and < 75)
+        {
+            action = BunchoActionType.Mochi;
+        }
+        else if (rnd is >= 75 and < 85)
+        {
+            action = BunchoActionType.Walk;
+        }
+        else
+        {
+            action = BunchoActionType.Jump;
+        }
+
+        if (_previousActionType == BunchoActionType.Mochi)
+        {
+            action = BunchoActionType.Walk;
+        }
+
+        _previousActionType = action;
+        return action;
     }
 
     BunchoAction DecideNextAction()
     {
-        int action = 0;
-        int rnd = Random.Range(0, 100);
-        if (rnd is >= 0 and < 75)
-        {
-            action = 0;
-        }
-        else if (rnd is >= 75 and < 85)
-        {
-            action = 1;
-        }
-        else
-        {
-            action = 2;
-        }
-
+        var action = SelectNextAction();
+        Debug.Log($"DecideNextAction!! action: {action}");
         switch (action)
         {
-            case 0:
+            case BunchoActionType.Mochi:
+            {
+                return new Mochi(animator);
+            }
+            case BunchoActionType.Walk:
             {
                 var perch = field.GetPerchAt(_currentPerchIndex);
                 var nextPosition = perch.Pick(_positionIndex);
+                perch.DumpPositions();
                 _positionIndex = nextPosition;
                 return new Walk(animator, transform, perch.GetPosition(nextPosition));
             }
-            case 1:
+            case BunchoActionType.Jump:
             {
                 var nextPerchIndex = _currentPerchIndex == 0 ? 1 : 0;
                 var nextPerch = field.GetPerchAt(nextPerchIndex);
@@ -84,7 +104,7 @@ public class BunchoController : MonoBehaviour
                 _positionIndex = jumpTo;
                 return new Jump(animator, transform, nextPerch.GetPosition(jumpTo));
             }
-            case 2:
+            case BunchoActionType.Sleep:
                 return new Sleep();
         }
 

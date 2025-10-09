@@ -14,6 +14,11 @@ namespace BunchoWatch
         private void Awake()
         {
             Application.targetFrameRate = 30;
+            foreach (var perch in perches)
+            {
+                perch.Initialize();
+            }
+
             buncho.Initialize(this);
         }
 
