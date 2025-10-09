@@ -119,10 +119,8 @@ public class BunchoAnimator : MonoBehaviour
         eyeRight.sprite = openEyeSprite;
         yield break;
     }
-
-
-
-
+    
+    
     private void Update()
     {
         if (Input.GetKeyUp(KeyCode.A))
